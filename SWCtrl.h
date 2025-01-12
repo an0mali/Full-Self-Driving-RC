@@ -6,9 +6,9 @@ class SWCtrl {
   public:
 
   private:
-    adjustDac(int voltArray[], bool isThrottle = false);
-    adjustThrottle();
-    adjustSteering();
-}
+    void adjustDac(int voltArray[], bool isThrottle = false);
+    void adjustThrottle();
+    void adjustSteering();
+};
 
 #endif

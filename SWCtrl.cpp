@@ -1,3 +1,5 @@
+
+#include "SWCtrl.h"
 ///////////////////////
 
 //Control module receives steeringRequests from nav_module and obstacle_avoidance_module to adjust steering
@@ -103,7 +105,7 @@ void SWCtrl::adjustDac(int voltArray[], bool isThrottle = false) {
   }
 }
 
-void SWCtrl::adjustThrotte () {
+void SWCtrl::adjustThrottle () {
   if (abs(curThrottleVoltage - tarThrottleVoltage) > stepThresh) //Only adjust if difference is non-negligible
   {
 
