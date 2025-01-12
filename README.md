@@ -11,4 +11,4 @@ Phase 4) Integrate system with an external GUI for plotting and transferring coo
 Phase 5) Implement a multiple launch bottle rocket system (MLBRS).
 Phase 6) Profit.
 
-Phases 5 and 6 don't occur unless I hit 10k subs on youtube. Subscribe for updates on this project: https://www.youtube.com/@dQuigz
+Phases 5 and 6 don't occur unless I hit 10k subs on youtube. Subscribe for updates on this project https://www.youtube.com/@dQuigz
