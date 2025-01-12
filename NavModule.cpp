@@ -84,8 +84,8 @@ void NavModule::navLoop()
   //Primary NavModule function, to be called by SWCtrl as needed
 
   float cHeading = getCorrectionHeading();
-  //Serial.print("Need to correct heading by: ");
-  //Serial.println(cHeading);
+  Serial.print("Need to correct heading by: ");
+  Serial.println(cHeading);
 
 }
 
@@ -95,22 +95,20 @@ float NavModule::getTargetBearing()
   // This sketch displays information every time a new sentence is correctly encoded.
   //Want this to return a wait if no gps detected so vehicle doesn't continue to drive without proper heading
   // maybe have SWCtrl stop the vehicle?
-  while (gpsSerial.available() > 0) {
-    if (!gps.encode(gpsSerial.read())) {
-      Serial.println("No gps reading");
-      return;
-    };
-    if (gps.location.isValid())
-      {
-        displayInfo();
-        float cbear = bearing(gps.location.lat(), gps.location.lng(), destLat, destLng);
-        return cbear;
-      }
-    else {
-      Serial.println("GPS Location invalid");
-    };
+  while (gpsSerial.available() > 0)
+    if (gps.encode(gpsSerial.read()))
+      displayInfo();
+   // if (gps.location.isValid())
+   //   {
+  if (gps.location.isValid()) {
 
-  };
+  //This is getting spammed when gpsSerial.available() <= 0?
+  float cbear = bearing(gps.location.lat(), gps.location.lng(), destLat, destLng);
+  return cbear;// Returning here might be causing an issue
+  }
+   //   };
+   // };
+
 
   // If 5000 milliseconds pass and there are no characters coming in
   // over the software serial port, show a "No GPS detected" error
