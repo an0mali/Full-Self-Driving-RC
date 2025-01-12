@@ -5,6 +5,7 @@
 class HWCtrl {
   public:
     void init();
+    void runTests();
 
   private:
 

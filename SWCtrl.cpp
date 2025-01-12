@@ -1,24 +1,32 @@
 
 #include "SWCtrl.h"
-///////////////////////
+#include "HWCtrl.h"
+#include "NavModule.h"
 
-//Control module receives steeringRequests from nav_module and obstacle_avoidance_module to adjust steering
-// This module controls if vehicle is in a navToLocation or avoidObstacle state and determines which module accordingly to get steeringRequests from
+HWCtrl hwctrl;
+NavModule navmodule;
 
+/*//////////////////////
 
-//FIne tuning how the vehicle responds should be in this moduleg
-
-//Drive module to cotrol DACs might be seperate due to complexity of this module
-//This module should be human readable while DAC/drive module will convert that data into machine signals
-
-//This module performs constant calculations and pulls sensor data from other modules but does not communicate with sensors directly
+Control module receives steeringRequests from NavModule and ObstacleModule to adjust steering
+This module controls if vehicle is in a navToLocation or avoidObstacle state and determines which module accordingly to get steeringRequests from
 
 
-// Steering occurs with 3 intensities? 0,1,2, 3, 4, 5, 6 (hard left, left, slight left, straight, slight right, right, hard right)
-// thresholds should be established for what calls for hard, medium, or slight steering adjustsments. This may also integrate with throttle state
-// Hard steering reduces thorttle speed, straight increases throttle
-// Steering automatically returns to 0 in steps so vehicle will straighten out if nav data isnt obtained
+FIne tuning how the vehicle responds should be in this moduleg
 
+Drive module to cotrol DACs might be seperate due to complexity of this module
+This module should be human readable while DAC/drive module will convert that data into machine signals
+
+This module performs constant calculations and pulls sensor data from other modules but does not communicate with sensors directly
+
+
+Steering occurs with 3 intensities? 0,1,2, 3, 4, 5, 6 (hard left, left, slight left, straight, slight right, right, hard right)
+thresholds should be established for what calls for hard, medium, or slight steering adjustsments. This may also integrate with throttle state
+Hard steering reduces thorttle speed, straight increases throttle
+Steering automatically returns to 0 in steps so vehicle will straighten out if nav data isnt obtained
+
+
+*/
 const float steerProportions[] = {1.0, 0.3, 0.1, 0.0, 0.1, 0.3, 1.0}; //percentage of steering emulation
 const float throttleProportions[] = {0, 10.0, 10.0, 20.0, 50.0, 100.0}; // percentage of thorttle emulation
 
@@ -28,7 +36,6 @@ const float throttleProportions[] = {0, 10.0, 10.0, 20.0, 50.0, 100.0}; // perce
 // Adjustments should be gradually in steps
 // Adjustment from any state to stop should adjust throttle more quickly than acceleration adjustment
 
-///////////////////////
 
 
 //// Set voltage constants
@@ -75,6 +82,39 @@ float curSteerVoltage = stopThrottleVoltage;
 float tarSteerVoltage = stopThrottleVoltage;
 float steerStepVoltAr[] = {stopThrottleVoltage, stopThrottleVoltage};
 ////
+
+bool isInit = false;
+
+void SWCtrl::init() {
+  Serial.println("SWCtrl: Initializing");
+
+  //hwctrl.init();//Initialize HWCtrl module
+  navmodule.init();//Initialize nav module
+
+  delay(100);
+  isInit = true;
+  Serial.println("SWCtrl: Init complete");
+}
+
+void SWCtrl::loop() {
+  /*
+  This is primary system loop. We need to:
+  0) Update GPS? This may not need to occur every frame, but could be useful for advanced obstacle avoidance
+  1) Check ObstacleModule for state (if state is nav and collision, state = avoid; if state is avoid and no collision, state = nav)
+  If nav state:
+    2) Get steering direction from NavModule
+  else:
+    2) Get steering and throttle direction from ObstacleModule
+
+  3) Update HWCtrl with throttle and steering changes
+  
+  
+  */
+  if (isInit){
+    navmodule.navLoop();
+  }
+
+}
 
 void SWCtrl::adjustDac(int voltArray[], bool isThrottle = false) {
   //0 is current voltage, 1 is target voltage

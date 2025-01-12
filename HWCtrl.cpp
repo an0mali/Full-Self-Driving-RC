@@ -12,6 +12,8 @@ float steerNeutralVolts = 1.1;//1.1;
 float throttleNeutralVolts = 1.15;
 
 void HWCtrl::init() {
+
+  Serial.println("HWCtrl: Initializing");
   delay(100); //allow other actions to finish
   dacThrottle.begin(0x61);//Throttle DAC mem addr
   dacSteer.begin(0x60); //Steering DAC meme addr
@@ -21,11 +23,16 @@ void HWCtrl::init() {
 
   toggleRemote();
 
+  Serial.println("HWCtrl: Init complete");
+  //testVolts(); Test function, do not use when remote is connected to breadboard as it will push 5v to potentiometer leads
+
+}
+
+void HWCtrl::runTests() {
+  //Run basic steering and throttle control tests then turn off remote
   testSteering();
   testThrottle();
   toggleRemote();
-  //testVolts(); Test function, do not use when remote is connected to breadboard as it will push 5v to potentiometer leads
-
 }
 
 void HWCtrl::toggleRemote() {
@@ -120,9 +127,9 @@ int HWCtrl::convertDacVoltage(float volts) {
 }
 
 void HWCtrl::setThrottleVoltage (float volts) {
-  dacThrottle.setVoltage(convertDacVoltage(volts), false); //converts voltage to data in, second arg is whether to write to EPROM for persistance
+  dacThrottle.setVoltage(convertDacVoltage(volts), false); //converts voltage to data in, second arg is whether to write to DAC EPROM for persistance
 }
 
 void HWCtrl::setSteerVoltage (float volts) {
-  dacSteer.setVoltage(convertDacVoltage(volts), false); //converts voltage to data in, second arg is whether to write to EPROM for persistance
+  dacSteer.setVoltage(convertDacVoltage(volts), false); //converts voltage to data in, second arg is whether to write to DAC EPROM for persistance
 }

@@ -4,6 +4,8 @@
 
 class SWCtrl {
   public:
+    void init();
+    void loop();
 
   private:
     void adjustDac(int voltArray[], bool isThrottle = false);

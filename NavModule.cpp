@@ -12,6 +12,8 @@
 #include <LSM303.h> //may have an issue with this as it is not the library orignal navModule was tested with
 LSM303 cmps;
 
+bool printData = true; //Control serial output of parsed GPS data for testing
+
 // Choose two Arduino pins to use for software serial
 int RXPin = 2;
 int TXPin = 3;
@@ -29,9 +31,10 @@ SoftwareSerial gpsSerial(RXPin, TXPin);
 
 void NavModule::init()
 {
+  Serial.println("NavModule: Initializing");
   //initialize gps
   // Start the Arduino hardware serial port at 9600 baud
-  Serial.begin(9600);
+  //Serial.begin(9600); Performed by RC_FSD now
 
   // Start the software serial port at the GPS's default baud
   gpsSerial.begin(GPSBaud);
@@ -40,8 +43,6 @@ void NavModule::init()
   Wire.begin();
   cmps.init();
   cmps.enableDefault();
-
-  Serial.println("Setup complete...");
   
   /*
   Calibration values; the default values of +/-32767 for each axis
@@ -50,6 +51,8 @@ void NavModule::init()
   */
   cmps.m_min = (LSM303::vector<int16_t>){-32767, -32767, -32767};
   cmps.m_max = (LSM303::vector<int16_t>){+32767, +32767, +32767};
+
+  Serial.println("NavModule: Init complete");
 }
 
 void NavModule::setNavCoord(float destinationLat, float destinationLong) {
@@ -64,7 +67,13 @@ float NavModule::getCorrectionHeading()
   //read from compass, subject that current bearing from target bearing
   cmps.read();
   float currentHeading = cmps.heading();
+  if (printData) {
+    //Serial.print("Heading: ");
+    //Serial.println(currentHeading);
+  };
+
   float correction = currentHeading - targetBearing;
+
 
   //return how much we need to correct
   return correction;
@@ -72,9 +81,11 @@ float NavModule::getCorrectionHeading()
 
 void NavModule::navLoop()
 {
+  //Primary NavModule function, to be called by SWCtrl as needed
+
   float cHeading = getCorrectionHeading();
-  Serial.print("Need to correct heading by: ");
-  Serial.println(cHeading);
+  //Serial.print("Need to correct heading by: ");
+  //Serial.println(cHeading);
 
 }
 
@@ -83,13 +94,23 @@ float NavModule::getTargetBearing()
 {
   // This sketch displays information every time a new sentence is correctly encoded.
   //Want this to return a wait if no gps detected so vehicle doesn't continue to drive without proper heading
-  while (gpsSerial.available() > 0)
-    if (gps.encode(gpsSerial.read()))
-      if (gps.location.isValid())
+  // maybe have SWCtrl stop the vehicle?
+  while (gpsSerial.available() > 0) {
+    if (!gps.encode(gpsSerial.read())) {
+      Serial.println("No gps reading");
+      return;
+    };
+    if (gps.location.isValid())
       {
+        displayInfo();
         float cbear = bearing(gps.location.lat(), gps.location.lng(), destLat, destLng);
         return cbear;
       }
+    else {
+      Serial.println("GPS Location invalid");
+    };
+
+  };
 
   // If 5000 milliseconds pass and there are no characters coming in
   // over the software serial port, show a "No GPS detected" error
@@ -121,6 +142,66 @@ float NavModule::bearing(float lat,float lon,float lat2,float lon2){
     Serial.println(brng);
 
     return brng;
-
-
   }
+
+  
+void NavModule::displayInfo()
+{
+  //Use for testing
+  if (!printData) {
+    Serial.println("GPS data disabled");
+    return;
+  };
+  Serial.println("displayInfo");
+  if (gps.location.isValid())
+  {
+    Serial.print("Latitude: ");
+    Serial.println(gps.location.lat(), 6);
+    Serial.print("Longitude: ");
+    Serial.println(gps.location.lng(), 6);
+    Serial.print("Altitude: ");
+    Serial.println(gps.altitude.meters());
+  }
+  else
+  {
+    Serial.println("Location: Not Available");
+  }
+  
+  Serial.print("Date: ");
+  if (gps.date.isValid())
+  {
+    Serial.print(gps.date.month());
+    Serial.print("/");
+    Serial.print(gps.date.day());
+    Serial.print("/");
+    Serial.println(gps.date.year());
+  }
+  else
+  {
+    Serial.println("Not Available");
+  }
+
+  Serial.print("Time: ");
+  if (gps.time.isValid())
+  {
+    if (gps.time.hour() < 10) Serial.print(F("0"));
+    Serial.print(gps.time.hour());
+    Serial.print(":");
+    if (gps.time.minute() < 10) Serial.print(F("0"));
+    Serial.print(gps.time.minute());
+    Serial.print(":");
+    if (gps.time.second() < 10) Serial.print(F("0"));
+    Serial.print(gps.time.second());
+    Serial.print(".");
+    if (gps.time.centisecond() < 10) Serial.print(F("0"));
+    Serial.println(gps.time.centisecond());
+  }
+  else
+  {
+    Serial.println("Not Available");
+  }
+
+  Serial.println();
+  Serial.println();
+  delay(1000);
+}

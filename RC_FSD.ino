@@ -1,15 +1,23 @@
+#include "SWCtrl.h"
 
+SWCtrl swctrl;
 
 void setup() {
-  Serial.begin(9600);
-  delay(100);
+
   char mes[] = "Initializing RC_FSD";
   Serial.println(mes);
+  
+  Serial.begin(9600);
+  while (!Serial) {}; //wait for serial
+  delay(100); //extra delay doesnt hurt
+  
+
+  swctrl.init();//Init SWCtrl, which initializes all other systems
   
 
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  swctrl.loop();//Run main loop, might move some of that stuff over here
 
 }

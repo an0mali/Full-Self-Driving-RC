@@ -12,6 +12,7 @@ class NavModule {
     float getCorrectionHeading();
     float getTargetBearing();
     float bearing(float lat,float lon,float lat2,float lon2);
+    void displayInfo();
 
 };
 
