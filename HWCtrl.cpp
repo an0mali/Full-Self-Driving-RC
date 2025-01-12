@@ -23,6 +23,8 @@ void HWCtrl::init() {
 
   toggleRemote();
 
+  //runTests();
+
   Serial.println("HWCtrl: Init complete");
   //testVolts(); Test function, do not use when remote is connected to breadboard as it will push 5v to potentiometer leads
 

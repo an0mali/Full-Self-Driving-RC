@@ -2,13 +2,15 @@
 #include "SWCtrl.h"
 #include "HWCtrl.h"
 #include "NavModule.h"
+#include "AvoidModule.h"
 
 HWCtrl hwctrl;
 NavModule navmodule;
+AvoidModule avoidmodule;
 
 /*//////////////////////
 
-Control module receives steeringRequests from NavModule and ObstacleModule to adjust steering
+SWCtrl module receives steeringRequests from NavModule and ObstacleModule to adjust steering
 This module controls if vehicle is in a navToLocation or avoidObstacle state and determines which module accordingly to get steeringRequests from
 
 
@@ -30,7 +32,7 @@ Steering automatically returns to 0 in steps so vehicle will straighten out if n
 const float steerProportions[] = {1.0, 0.3, 0.1, 0.0, 0.1, 0.3, 1.0}; //percentage of steering emulation
 const float throttleProportions[] = {0, 10.0, 10.0, 20.0, 50.0, 100.0}; // percentage of thorttle emulation
 
-//Throttle is in 4 intensities
+//Throttle in 4 intensities?
 // 0, 1, 2, 3, 4, 5 (stop, reverse, forward crawl, forward walk, forward run, forward sprint)
 
 // Adjustments should be gradually in steps
@@ -85,11 +87,14 @@ float steerStepVoltAr[] = {stopThrottleVoltage, stopThrottleVoltage};
 
 bool isInit = false;
 
+bool avoidState = false; //since there are only two states- navigation and obstacle avoid, this can be handled with bool
+
 void SWCtrl::init() {
   Serial.println("SWCtrl: Initializing");
 
   hwctrl.init();//Initialize HWCtrl module
   navmodule.init();//Initialize nav module
+  avoidmodule.init();//Initialize avoid module
 
   delay(100);
   isInit = true;
@@ -110,9 +115,22 @@ void SWCtrl::loop() {
   
   
   */
-  if (isInit){
+
+  //If device is not intit, dont do anything
+  // If device is init and in navState, run navLoop
+  // if deveice is init and in avoidState (navState = false), run avoidLoop (avoidModule not yet implemented)
+  if (!isInit){
+    return;
+    }
+
+  avoidState = avoidmodule.checkCollision();
+
+  if (!avoidState) {
     navmodule.navLoop();
+    return;
   }
+
+  //avoidModule.avoidLoop();
 
 }
 

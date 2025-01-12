@@ -12,7 +12,7 @@
 #include <LSM303.h> //may have an issue with this as it is not the library orignal navModule was tested with
 LSM303 cmps;
 
-bool printData = true; //Control serial output of parsed GPS data for testing
+bool printData = false; //Control serial output of parsed GPS data for testing
 
 // Choose two Arduino pins to use for software serial
 int RXPin = 2;
@@ -88,6 +88,10 @@ void NavModule::navLoop()
 {
   //Primary NavModule function, to be called by SWCtrl as needed
 
+  //This probably just needs to update a steering state in SWCtrl, either left, right, or center, with intensity of steering being dependent on current throttle
+  //
+  //should prob just use 0, 1, 2 for left, center, right because arduino hate strings
+
   float cHeading = getCorrectionHeading();
   if (cHeading != 999.9) {
     Serial.print("Need to correct heading by: ");
@@ -95,7 +99,7 @@ void NavModule::navLoop()
     return;
   };
 
-  Serial.println("GPS location unchanged, bearing update bypassed.");
+  //Serial.println("GPS location unchanged, bearing update bypassed.");
 
 }
 
