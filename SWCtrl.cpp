@@ -88,7 +88,7 @@ bool isInit = false;
 void SWCtrl::init() {
   Serial.println("SWCtrl: Initializing");
 
-  //hwctrl.init();//Initialize HWCtrl module
+  hwctrl.init();//Initialize HWCtrl module
   navmodule.init();//Initialize nav module
 
   delay(100);

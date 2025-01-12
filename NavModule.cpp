@@ -20,8 +20,11 @@ int TXPin = 3;
 
 int GPSBaud = 9600;
 
-float destLat;
-float destLng;
+float destLat;//Destination GPS coordinate
+float destLng;//Destination GPS coordinate
+
+float curLat;//Current GPS coordinate
+float curLng;//Current GPS coordinate
 
 // Create a TinyGPS++ object
 TinyGPSPlus gps;
@@ -63,13 +66,15 @@ void NavModule::setNavCoord(float destinationLat, float destinationLong) {
 float NavModule::getCorrectionHeading()
 {
   float targetBearing = getTargetBearing();
-
-  //read from compass, subject that current bearing from target bearing
+  if (targetBearing == 999.9) {
+    return 999.9; //return out of range bearing for logic later
+  }
+  //read from compass, subtract that current bearing from target bearing
   cmps.read();
   float currentHeading = cmps.heading();
   if (printData) {
-    //Serial.print("Heading: ");
-    //Serial.println(currentHeading);
+    Serial.print("Heading: ");
+    Serial.println(currentHeading);
   };
 
   float correction = currentHeading - targetBearing;
@@ -84,8 +89,13 @@ void NavModule::navLoop()
   //Primary NavModule function, to be called by SWCtrl as needed
 
   float cHeading = getCorrectionHeading();
-  Serial.print("Need to correct heading by: ");
-  Serial.println(cHeading);
+  if (cHeading != 999.9) {
+    Serial.print("Need to correct heading by: ");
+    Serial.println(cHeading);
+    return;
+  };
+
+  Serial.println("GPS location unchanged, bearing update bypassed.");
 
 }
 
@@ -97,18 +107,16 @@ float NavModule::getTargetBearing()
   // maybe have SWCtrl stop the vehicle?
   while (gpsSerial.available() > 0)
     if (gps.encode(gpsSerial.read()))
+      //This loops too many times when waiting for GPS to connect to satellites
       displayInfo();
-   // if (gps.location.isValid())
-   //   {
-  if (gps.location.isValid()) {
 
-  //This is getting spammed when gpsSerial.available() <= 0?
-  float cbear = bearing(gps.location.lat(), gps.location.lng(), destLat, destLng);
-  return cbear;// Returning here might be causing an issue
-  }
-   //   };
-   // };
+    if (gps.location.isValid()) {
 
+    //This is getting spammed when gpsSerial.available() <= 0? Probably should only update after successful gpsSerial.read()
+    //gps.location.isValid() after just one connect, probably should compare current gps to previous gps and only update if change
+    float cbear = bearing(gps.location.lat(), gps.location.lng(), destLat, destLng);
+    return cbear;// Returning here might be causing an issue
+    }
 
   // If 5000 milliseconds pass and there are no characters coming in
   // over the software serial port, show a "No GPS detected" error
@@ -116,13 +124,21 @@ float NavModule::getTargetBearing()
   {
     Serial.println("No GPS detected");
     while(true);
+
+    //Device will hang if GPS fails during use, this needs to be corrected at some point, could cause vehicle to crash
   }
 }
 
 
 float NavModule::bearing(float lat,float lon,float lat2,float lon2){
     //lat and lon is current GPS location, lat2 lon2 is target gps location
+    if ((lat == curLat) && (lon == curLng)) {
+      //if lat and long hasnt changed, dont check bearing
+      return 999.9; //return an out of range number we can use for logic later
+    };
 
+    curLat = lat;
+    curLng = lon;
     float teta1 = radians(lat);
     float teta2 = radians(lat2);
     float delta1 = radians(lat2-lat);
@@ -145,9 +161,9 @@ float NavModule::bearing(float lat,float lon,float lat2,float lon2){
   
 void NavModule::displayInfo()
 {
-  //Use for testing
+  //Use for testing and debugging only, no functional code should be here
   if (!printData) {
-    Serial.println("GPS data disabled");
+    //Serial.println("GPS data disabled");
     return;
   };
   Serial.println("displayInfo");
@@ -201,5 +217,5 @@ void NavModule::displayInfo()
 
   Serial.println();
   Serial.println();
-  delay(1000);
+  //delay(1000);
 }
