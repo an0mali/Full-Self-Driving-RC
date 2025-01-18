@@ -11,7 +11,8 @@ int steerReadPin = A1;
 float steerNeutralVolts = 1.1;//1.1;
 float throttleNeutralVolts = 1.15;
 
-void HWCtrl::init() {
+void HWCtrl::init()
+{
 
   Serial.println("HWCtrl: Initializing");
   delay(100); //allow other actions to finish
@@ -30,14 +31,16 @@ void HWCtrl::init() {
 
 }
 
-void HWCtrl::runTests() {
+void HWCtrl::runTests()
+{
   //Run basic steering and throttle control tests then turn off remote
   testSteering();
   testThrottle();
   toggleRemote();
 }
 
-void HWCtrl::toggleRemote() {
+void HWCtrl::toggleRemote()
+{
   char mes[] = "Toggling remote...";
   Serial.println(mes);
   pinMode(remoteOnPin, OUTPUT);
@@ -49,7 +52,8 @@ void HWCtrl::toggleRemote() {
 
 }
 
-void HWCtrl::setNeutralPositions() {
+void HWCtrl::setNeutralPositions()
+{
   char mes[] = "Setting Neutral voltage outputs";
   Serial.println(mes);
   setThrottleVoltage(throttleNeutralVolts); //1.15 is netural, 1.14v - 0.55v is min-max reverse, 1.16v - 2.4v is min-max forward. Mins may be higher
@@ -57,10 +61,10 @@ void HWCtrl::setNeutralPositions() {
   delay(500);
   char mes3[] = "Set neutral position complete";
   Serial.println(mes3);
-
 }
 
-void HWCtrl::testThrottle() {
+void HWCtrl::testThrottle()
+{
   char mes[] = "Setting slight throttle for two seconds";
   Serial.println(mes);
   setThrottleVoltage(1.4);
@@ -70,7 +74,8 @@ void HWCtrl::testThrottle() {
   setThrottleVoltage(throttleNeutralVolts);
 }
 
-void HWCtrl::testSteering() {
+void HWCtrl::testSteering()
+{
   //Test max left and right steering
   char mes[] = "Setting max left steer for two seconds";
   Serial.println(mes);
@@ -91,20 +96,25 @@ void HWCtrl::testSteering() {
   Serial.println(mes3);
 }
 
-void HWCtrl::testVolts() {
+void HWCtrl::testVolts()
+{
     int readPin = throttleReadPin;
     String voltmes = "Throttle Voltage: ";
-    for (int x = 0;  x <= 1; x++) {
+    for (int x = 0;  x <= 1; x++)
+    {
       if (x > 0) { // Set read pin account
         readPin = steerReadPin;
         voltmes = "Steering Voltage: ";
-      }
+    }
 
-      for (int i = 0; i <= 5; i++) {
-        if (x == 0) {
+      for (int i = 0; i <= 5; i++)
+      {
+        if (x == 0)
+        {
           setThrottleVoltage(i);
         }
-        else {
+        else
+        {
           setSteerVoltage(i);
         }
         delay(100);
@@ -117,21 +127,25 @@ void HWCtrl::testVolts() {
 
 }
 
-float HWCtrl::readToVolts(int aPin) {
+float HWCtrl::readToVolts(int aPin)
+{
   int value = analogRead(aPin);
   float voltage = value * (5.0 / 1023.0);
   return voltage;
 }
 
-int HWCtrl::convertDacVoltage(float volts) {
+int HWCtrl::convertDacVoltage(float volts)
+{
   int binVolt = (volts * 4095) / 5;
   return binVolt;
 }
 
-void HWCtrl::setThrottleVoltage (float volts) {
+void HWCtrl::setThrottleVoltage (float volts)
+{
   dacThrottle.setVoltage(convertDacVoltage(volts), false); //converts voltage to data in, second arg is whether to write to DAC EPROM for persistance
 }
 
-void HWCtrl::setSteerVoltage (float volts) {
+void HWCtrl::setSteerVoltage (float volts)
+{
   dacSteer.setVoltage(convertDacVoltage(volts), false); //converts voltage to data in, second arg is whether to write to DAC EPROM for persistance
 }

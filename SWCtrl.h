@@ -2,7 +2,8 @@
 #define SWCtrl_h
 #include <Arduino.h>
 
-class SWCtrl {
+class SWCtrl
+{
   public:
     void init();
     void loop();

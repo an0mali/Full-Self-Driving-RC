@@ -2,7 +2,8 @@
 #define HWCtrl_h
 #include <Arduino.h>
 
-class HWCtrl {
+class HWCtrl
+{
   public:
     void init();
     void runTests();

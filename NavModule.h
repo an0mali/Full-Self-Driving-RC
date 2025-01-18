@@ -2,7 +2,8 @@
 #define NavModule_h
 #include <Arduino.h>
 
-class NavModule {
+class NavModule
+{
   public:
     void init();
     void setNavCoord(float destinationLat, float desitnationLong);

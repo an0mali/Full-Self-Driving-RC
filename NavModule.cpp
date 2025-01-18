@@ -93,9 +93,10 @@ void NavModule::navLoop()
   //should prob just use 0, 1, 2 for left, center, right because arduino hate strings
 
   float cHeading = getCorrectionHeading();
-  if (cHeading != 999.9) {
-    Serial.print("Need to correct heading by: ");
-    Serial.println(cHeading);
+  if (cHeading != 999.9) 
+  {
+   // Serial.print("Need to correct heading by: ");
+   // Serial.println(cHeading);
     return;
   };
 
@@ -114,7 +115,8 @@ float NavModule::getTargetBearing()
       //This loops too many times when waiting for GPS to connect to satellites
       displayInfo();
 
-    if (gps.location.isValid()) {
+    if (gps.location.isValid()) 
+    {
 
     //This is getting spammed when gpsSerial.available() <= 0? Probably should only update after successful gpsSerial.read()
     //gps.location.isValid() after just one connect, probably should compare current gps to previous gps and only update if change
@@ -134,9 +136,11 @@ float NavModule::getTargetBearing()
 }
 
 
-float NavModule::bearing(float lat,float lon,float lat2,float lon2){
+float NavModule::bearing(float lat,float lon,float lat2,float lon2)
+{
     //lat and lon is current GPS location, lat2 lon2 is target gps location
-    if ((lat == curLat) && (lon == curLng)) {
+    if ((lat == curLat) && (lon == curLng)) 
+    {
       //if lat and long hasnt changed, dont check bearing
       return 999.9; //return an out of range number we can use for logic later
     };
@@ -160,13 +164,14 @@ float NavModule::bearing(float lat,float lon,float lat2,float lon2){
     Serial.println(brng);
 
     return brng;
-  }
+}
 
   
 void NavModule::displayInfo()
 {
   //Use for testing and debugging only, no functional code should be here
-  if (!printData) {
+  if (!printData)
+  {
     //Serial.println("GPS data disabled");
     return;
   };

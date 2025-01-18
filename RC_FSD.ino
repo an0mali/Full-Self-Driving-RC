@@ -2,7 +2,8 @@
 
 SWCtrl swctrl;
 
-void setup() {
+void setup()
+{
 
   char mes[] = "Initializing RC_FSD";
   Serial.println(mes);
@@ -17,7 +18,8 @@ void setup() {
 
 }
 
-void loop() {
+void loop()
+{
   swctrl.loop();//Run main loop, might move some of that stuff over here
 
 }

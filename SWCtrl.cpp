@@ -89,7 +89,8 @@ bool isInit = false;
 
 bool avoidState = false; //since there are only two states- navigation and obstacle avoid, this can be handled with bool
 
-void SWCtrl::init() {
+void SWCtrl::init()
+{
   Serial.println("SWCtrl: Initializing");
 
   hwctrl.init();//Initialize HWCtrl module
@@ -101,7 +102,8 @@ void SWCtrl::init() {
   Serial.println("SWCtrl: Init complete");
 }
 
-void SWCtrl::loop() {
+void SWCtrl::loop()
+{
   /*
   This is primary system loop. We need to:
   0) Update GPS? This may not need to occur every frame, but could be useful for advanced obstacle avoidance
@@ -119,13 +121,15 @@ void SWCtrl::loop() {
   //If device is not intit, dont do anything
   // If device is init and in navState, run navLoop
   // if deveice is init and in avoidState (navState = false), run avoidLoop (avoidModule not yet implemented)
-  if (!isInit){
+  if (!isInit)
+  {
     return;
-    }
+  }
 
   avoidState = avoidmodule.checkCollision();
 
-  if (!avoidState) {
+  if (!avoidState)
+  {
     navmodule.navLoop();
     return;
   }
@@ -134,7 +138,8 @@ void SWCtrl::loop() {
 
 }
 
-void SWCtrl::adjustDac(int voltArray[], bool isThrottle = false) {
+void SWCtrl::adjustDac(int voltArray[], bool isThrottle = false)
+{
   //0 is current voltage, 1 is target voltage
   //if stepThresh checks out, we know adjustment needs to be made, so only check if it needs to go down, in which case * by -1.0
   float adjust = stepThresh;
@@ -163,7 +168,8 @@ void SWCtrl::adjustDac(int voltArray[], bool isThrottle = false) {
   }
 }
 
-void SWCtrl::adjustThrottle () {
+void SWCtrl::adjustThrottle ()
+{
   if (abs(curThrottleVoltage - tarThrottleVoltage) > stepThresh) //Only adjust if difference is non-negligible
   {
 
@@ -181,7 +187,8 @@ void SWCtrl::adjustThrottle () {
   }
 }
 
-void SWCtrl::adjustSteering () {
+void SWCtrl::adjustSteering ()
+{
   if (abs(curSteerVoltage - tarSteerVoltage) > stepThresh) //Only adjust if difference is non-negligible
   {
 
